@@ -4,13 +4,15 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class SalaryInfo {
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    private static final DateTimeFormatter DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private static final String LINE_SEPARATOR = System.lineSeparator();
 
     private static final int DATE_INDEX = 0;
     private static final int NAME_INDEX = 1;
     private static final int HOURS_INDEX = 2;
     private static final int RATE_INDEX = 3;
+    private static final int EXPECTED_DATA_PARTS_COUNT = 4;
 
     public String getSalaryInfo(String[] employeeNames, String[] workLogData,
                                 String dateFrom, String dateTo) {
@@ -19,8 +21,11 @@ public class SalaryInfo {
         int[] salaries = new int[employeeNames.length];
 
         for (String logEntry : workLogData) {
+            if (logEntry == null || logEntry.trim().isEmpty()) {
+                continue;
+            }
             String[] parts = logEntry.trim().split("\\s+");
-            if (parts.length != 4) {
+            if (parts.length != EXPECTED_DATA_PARTS_COUNT) {
                 continue;
             }
             LocalDate workDate;
@@ -52,13 +57,16 @@ public class SalaryInfo {
         reportBuilder.append("Report for period ")
                 .append(dateFrom.trim())
                 .append(" - ")
-                .append(dateTo.trim());
+                .append(dateTo.trim())
+                .append(LINE_SEPARATOR);
 
         for (int i = 0; i < employeeNames.length; i++) {
-            reportBuilder.append(LINE_SEPARATOR)
-                    .append(employeeNames[i].trim())
+            reportBuilder.append(employeeNames[i].trim())
                     .append(" - ")
                     .append(salaries[i]);
+            if (i < employeeNames.length - 1) {
+                reportBuilder.append(LINE_SEPARATOR);
+            }
         }
 
         return reportBuilder.toString();
