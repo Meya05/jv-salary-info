@@ -9,21 +9,33 @@ public class SalaryInfo {
 
     public String getSalaryInfo(String[] employeeNames, String[] workLogData,
                                 String dateFrom, String dateTo) {
-        LocalDate startDate = LocalDate.parse(dateFrom, DATE_FORMATTER);
-        LocalDate endDate = LocalDate.parse(dateTo, DATE_FORMATTER);
+        LocalDate startDate = LocalDate.parse(dateFrom.trim(), DATE_FORMATTER);
+        LocalDate endDate = LocalDate.parse(dateTo.trim(), DATE_FORMATTER);
         int[] salaries = new int[employeeNames.length];
 
         for (String logEntry : workLogData) {
-            String[] parts = logEntry.split(" ");
-            LocalDate workDate = LocalDate.parse(parts[0], DATE_FORMATTER);
-
+            String[] parts = logEntry.trim().split("\\s+");
+            if (parts.length != 4) {
+                continue;
+            }
+            LocalDate workDate;
+            try {
+                workDate = LocalDate.parse(parts[0].trim(), DATE_FORMATTER);
+            } catch (Exception e) {
+                continue;
+            }
             if (!workDate.isBefore(startDate) && !workDate.isAfter(endDate)) {
-                String employeeName = parts[1];
-                int hoursWorked = Integer.parseInt(parts[2]);
-                int hourlyRate = Integer.parseInt(parts[3]);
-
+                String employeeName = parts[1].trim();
+                int hoursWorked;
+                int hourlyRate;
+                try {
+                    hoursWorked = Integer.parseInt(parts[2].trim());
+                    hourlyRate = Integer.parseInt(parts[3].trim());
+                } catch (NumberFormatException e) {
+                    continue;
+                }
                 for (int i = 0; i < employeeNames.length; i++) {
-                    if (employeeNames[i].equals(employeeName)) {
+                    if (employeeNames[i].trim().equals(employeeName)) {
                         salaries[i] += hoursWorked * hourlyRate;
                         break;
                     }
@@ -33,13 +45,13 @@ public class SalaryInfo {
 
         StringBuilder reportBuilder = new StringBuilder();
         reportBuilder.append("Report for period ")
-                .append(dateFrom)
+                .append(dateFrom.trim())
                 .append(" - ")
-                .append(dateTo);
+                .append(dateTo.trim());
 
         for (int i = 0; i < employeeNames.length; i++) {
             reportBuilder.append(LINE_SEPARATOR)
-                    .append(employeeNames[i])
+                    .append(employeeNames[i].trim())
                     .append(" - ")
                     .append(salaries[i]);
         }
